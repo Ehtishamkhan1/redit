@@ -1,47 +1,64 @@
+import React, { useCallback, useRef, useState } from "react";
+import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useQuery } from "@tanstack/react-query";
+
 import Comments from "@/assets/data/comments.json";
 import posts from "@/assets/data/posts.json";
 import CommentsListItem from "@/src/components/CommentsListItem";
 import PostListItem from "@/src/components/PostListItem";
-import { useLocalSearchParams } from "expo-router";
-import { useCallback, useRef, useState } from "react";
-import {
-  FlatList,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
 import KeyboardStickyView from "@/src/components/KeyboardStickyView";
+import { fetchPostsById } from "@/src/services/postService";
 
 export default function PostDetailed() {
-  const { id } = useLocalSearchParams();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const insets = useSafeAreaInsets();
   const [comment, setComment] = useState("");
   const inputRef = useRef<TextInput>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const detailedPost = posts.find((post) => post.id === id);
-  const postComments = Comments.filter(
-    (comment) => comment.post_id === detailedPost?.id
-  );
 
-  if (!detailedPost) {
-    return <Text>Post Not Found!</Text>;
+  if (!id) {
+    return <Text>Loading...</Text>;
   }
+
+  
+  const { data: detailedPost, isLoading, isError } = useQuery({
+    queryKey: ["post", id],
+    queryFn: () => fetchPostsById(id),
+  });
+
   const handleReplyPress = useCallback((commentId: string) => {
     console.log("Reply button pressed", commentId);
     setIsInputFocused(true);
     inputRef.current?.focus();
   }, []);
 
+  const handlePostComment = useCallback(() => {
+    if (!comment.trim()) return;
+    console.log("Posting comment:", comment);
+    setComment("");
+    inputRef.current?.blur();
+  }, [comment]);
+
+  if (isLoading) {
+    return <Text>Loading post...</Text>;
+  }
+
+  if (isError || !detailedPost) {
+    return <Text>Post Not Found!</Text>;
+  }
+
+  const postComments = Comments.filter(
+    (comment) => comment.post_id === detailedPost.id
+  );
+
   return (
     <View style={{ flex: 1 }}>
       <FlatList
         data={postComments}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <CommentsListItem
             comment={item}
@@ -49,11 +66,9 @@ export default function PostDetailed() {
             handleReplyPress={handleReplyPress}
           />
         )}
-        ListHeaderComponent={
-          <PostListItem post={detailedPost} isDetailedPost />
-        }
+        ListHeaderComponent={<PostListItem post={detailedPost} isDetailedPost />}
         contentContainerStyle={{ paddingBottom: 80 }}
-        keyboardShouldPersistTaps="always"
+        keyboardShouldPersistTaps="handled"
       />
 
       <KeyboardStickyView>
@@ -73,15 +88,8 @@ export default function PostDetailed() {
             onFocus={() => setIsInputFocused(true)}
             onBlur={() => setIsInputFocused(false)}
           />
-          <Pressable
-            style={styles.postButton}
-            onPress={() => {
-              console.log("Posting:", comment);
-              setComment("");
-              inputRef.current?.blur();
-            }}
-          >
-            <Text style={{ color: "#fff" }}>Post</Text>
+          <Pressable style={styles.postButton} onPress={handlePostComment}>
+            <Text style={styles.postButtonText}>Post</Text>
           </Pressable>
         </View>
       </KeyboardStickyView>
@@ -106,10 +114,17 @@ const styles = StyleSheet.create({
     padding: 10,
     marginVertical: 8,
     flex: 0.9,
+    minHeight: 40,
+    textAlignVertical: "top",
   },
   postButton: {
     backgroundColor: "#FF5700",
-    padding: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
     borderRadius: 10,
+  },
+  postButtonText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });

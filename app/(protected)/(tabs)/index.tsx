@@ -1,33 +1,32 @@
-import React from "react";
-import { FlatList, View, ActivityIndicator } from "react-native";
+import React, { useCallback } from "react";
+import { FlatList, View, ActivityIndicator, Text } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/lib/supabase";
+import { useFocusEffect } from "@react-navigation/native"; // 👈 important
 import PostListItem from "@/src/components/PostListItem";
+import { fetchPosts } from "@/src/services/postService";
 
 export default function HomePage() {
-
-  // Define your fetch function (must return data or throw error)
-  const fetchPosts = async () => {
-    const { data, error } = await supabase
-      .from("posts")
-      .select("*, group:groups(*), user:users!posts_user_id_fkey(*)");
-
-    if (error) throw new Error(error.message);
-    return data;
-  };
-
-  // Use TanStack Query to fetch and cache data
+  // 🧠 Fetch posts with React Query
   const {
     data: posts,
     isLoading,
     isError,
     refetch,
+    isFetching,
   } = useQuery({
-    queryKey: ["posts"], // unique cache key
-    queryFn: fetchPosts, // function to run
+    queryKey: ["posts"],
+    queryFn: fetchPosts,
+    staleTime: 1000 * 60 * 3, // 3 min cache time (optional)
   });
 
-  // Loading state
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  // 🌀 Loading state
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -36,7 +35,7 @@ export default function HomePage() {
     );
   }
 
-  // Error state
+  // 💥 Error state
   if (isError) {
     return (
       <View className="flex-1 items-center justify-center">
@@ -45,7 +44,7 @@ export default function HomePage() {
     );
   }
 
-  // Success: render FlatList
+  // 🏡 Main UI
   return (
     <View className="flex-1">
       <FlatList
@@ -53,7 +52,9 @@ export default function HomePage() {
         renderItem={({ item }) => <PostListItem post={item} />}
         keyExtractor={(item) => item.id.toString()}
         onRefresh={refetch}
-        refreshing={isLoading}
+        refreshing={isFetching} // use isFetching to show spinner when refetching
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 16 }}
       />
     </View>
   );
