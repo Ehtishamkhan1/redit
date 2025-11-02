@@ -29,6 +29,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
           ),
+          animation: "shift",
         }}
       />
       <Tabs.Screen
@@ -38,6 +39,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Feather name="users" size={24} color={color} />
           ),
+             animation: "shift",
         }}
       />
       <Tabs.Screen
@@ -49,7 +51,9 @@ export default function TabLayout() {
           ),
           headerShown: false,
           tabBarStyle: { display: "none" },
+             animation: "shift",
         }}
+        
       />
       <Tabs.Screen
         name="chat"
@@ -62,6 +66,7 @@ export default function TabLayout() {
               color={color}
             />
           ),
+             animation: "shift",
         }}
       />
       <Tabs.Screen
@@ -71,6 +76,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Feather name="bell" size={24} color={color} />
           ),
+             animation: "shift",
         }}
       />
     </Tabs>
