@@ -6,7 +6,7 @@ import PostListItem from "@/src/components/PostListItem";
 import { fetchPosts } from "@/src/services/postService";
 
 export default function HomePage() {
-  // 🧠 Fetch posts with React Query
+
   const {
     data: posts,
     isLoading,
@@ -16,7 +16,7 @@ export default function HomePage() {
   } = useQuery({
     queryKey: ["posts"],
     queryFn: fetchPosts,
-    staleTime: 1000 * 60 * 3, // 3 min cache time (optional)
+    staleTime: 1000 * 60 * 3, 
   });
 
 

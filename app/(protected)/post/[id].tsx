@@ -64,6 +64,7 @@ export default function PostDetailed() {
             comment={item}
             depth={0}
             handleReplyPress={handleReplyPress}
+            
           />
         )}
         ListHeaderComponent={<PostListItem post={detailedPost} isDetailedPost />}

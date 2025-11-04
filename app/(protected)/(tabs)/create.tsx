@@ -1,5 +1,7 @@
+import { supabase } from "@/lib/supabase";
 import { SelectedgroupAtom } from "@/src/components/atoms";
 import { AntDesign } from "@expo/vector-icons";
+import { useMutation } from "@tanstack/react-query";
 import { Link, router } from "expo-router";
 import { useAtom } from "jotai";
 import React, { useState } from "react";
@@ -20,6 +22,19 @@ export default function CreatePostScreen() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [group, setGroup] = useAtom(SelectedgroupAtom);
+
+
+const mutation = useMutation({
+  mutationFn: async () => {
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({ title, body, group_id: group?.id });
+
+    if (error) throw error;
+    return data;
+  },
+});
+
 
   const goBack = () => {
     setTitle("");

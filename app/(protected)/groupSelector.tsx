@@ -1,6 +1,8 @@
 import group from "@/assets/data/groups.json";
 import { SelectedgroupAtom } from "@/src/components/atoms";
+import { fetchGroups } from "@/src/services/groupService";
 import { AntDesign } from "@expo/vector-icons";
+import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useSetAtom } from "jotai";
 import React from "react";
@@ -20,14 +22,64 @@ const GroupSelector = () => {
   const [search, setSearch] = React.useState<string>("");
   const setGroup = useSetAtom(SelectedgroupAtom);
 
-  const filteredData = group.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const {data,isLoading,error}=useQuery({
+    queryKey: ["groups",{search}],
+    queryFn: () => fetchGroups(search), 
+    staleTime: 10000,
+    placeholderData: (previousData)=> previousData
+  });
+
+
 
   const onSelectGroup = (group: any) => {
     setGroup(group);
     router.back();
   };
+
+  if (isLoading) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          },
+        ]}
+      >
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+
+  
+
+  if (error) {
+    return (
+      <View
+        style={[
+          styles.container,
+          {
+            paddingTop: insets.top,
+            paddingBottom: insets.bottom,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+          },
+        ]}
+      >
+        <Text>Error: {error.message}</Text>
+      </View>
+    );
+  }
+
+
+  //   const filteredData = data?.filter((item) =>
+  //   item.name.toLowerCase().includes(search.toLowerCase())
+  // );
+
 
   return (
     <View
@@ -98,7 +150,7 @@ const GroupSelector = () => {
 
       {/* render data */}
       <FlatList
-        data={filteredData}
+        data={data}
         style={{ marginTop: 10 }}
         renderItem={({ item }) => (
           <Pressable
