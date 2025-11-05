@@ -18,23 +18,27 @@ import {
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
+const insertFunction = async(title:string,body:string)=>{
+      const { data, error } = await supabase
+      .from('posts')
+      .insert({ title,description:body,group_id:"25533a35-d3f3-4b28-83c7-d43af7eaa6f3",user_id:"3a7e3d30-44ae-4212-af2b-7139aecd5be1"}).select()
+
+    if (error) throw error;
+    return data;
+}
+
 export default function CreatePostScreen() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [group, setGroup] = useAtom(SelectedgroupAtom);
 
 
-const mutation = useMutation({
-  mutationFn: async () => {
-    const { data, error } = await supabase
-      .from('posts')
-      .insert({ title, body, group_id: group?.id });
-
-    if (error) throw error;
-    return data;
-  },
+const {mutate,data, isPending} = useMutation({
+  mutationFn:  () => insertFunction(title,body)
 });
 
+console.log(data)
 
   const goBack = () => {
     setTitle("");
@@ -54,10 +58,11 @@ const mutation = useMutation({
           onPress={() => goBack()}
         />
         <Pressable
-          onPress={() => console.log("Post")}
+          onPress={() => mutate()}
           style={styles.postButton}
+          disabled={isPending} 
         >
-          <Text style={styles.postText}>Post</Text>
+          <Text style={styles.postText}>{isPending?"Posting...":"post"}</Text>
         </Pressable>
       </View>
 
@@ -109,7 +114,7 @@ const mutation = useMutation({
             value={body}
             onChangeText={setBody}
             multiline
-            textAlignVertical="top" // ✅ Important for placeholder alignment
+            textAlignVertical="top" 
           />
         </KeyboardAwareScrollView>
       </KeyboardAvoidingView>
