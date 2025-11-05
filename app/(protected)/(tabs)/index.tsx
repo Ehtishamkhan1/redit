@@ -20,11 +20,11 @@ export default function HomePage() {
   });
 
 
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, [refetch])
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     refetch();
+  //   }, [refetch])
+  // );
 
   // 🌀 Loading state
   if (isLoading) {
