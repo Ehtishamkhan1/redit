@@ -190,7 +190,7 @@ const styles = StyleSheet.create({
   bodyInput: {
     fontSize: 16,
     paddingVertical: 14,
-    minHeight: 150, // ✅ Prevent flicker by fixing base height
+    minHeight: 150,
 
     borderRadius: 8,
     paddingHorizontal: 10,

@@ -62,7 +62,7 @@ export default function PostListItem({
               </View>
               {isDetailedPost && (
                 <Text style={{ fontSize: 13, color: "#2E5DAA" }}>
-                  {post.user.name}
+                  {post?.user?.name}
                 </Text>
               )}
             </View>
