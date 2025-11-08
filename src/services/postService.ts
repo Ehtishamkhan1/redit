@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabase";
 
-  export const fetchPosts = async () => {
+
+  export const fetchPosts = async (supabase: any) => {
     const { data, error } = await supabase
       .from("posts")
       .select("*, group:groups(*)").order("created_at", { ascending: false });
@@ -10,7 +10,7 @@ import { supabase } from "@/lib/supabase";
   };
 
 
-    export const fetchPostsById = async (id: string) => {
+    export const fetchPostsById = async (id: string, supabase: any) => {
     const { data, error } = await supabase
       .from("posts")
       .select("*, group:groups(*)").eq("id", id).single();

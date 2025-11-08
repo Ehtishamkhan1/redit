@@ -1,6 +1,6 @@
-import { supabase } from "@/lib/supabase";
 
-export const fetchGroups = async ( name: string  ) => {
+
+export const fetchGroups = async ( name: string, supabase: any  ) => {
     const { data, error } = await supabase
         .from("groups")
         .select("*").ilike("name", `%${name}%`);

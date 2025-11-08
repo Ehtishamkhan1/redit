@@ -4,9 +4,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useFocusEffect } from "@react-navigation/native"; // 👈 important
 import PostListItem from "@/src/components/PostListItem";
 import { fetchPosts } from "@/src/services/postService";
+import { useSupabase } from "@/lib/supabase";
 
 export default function HomePage() {
 
+  const  supabase  = useSupabase();
   const {
     data: posts,
     isLoading,
@@ -15,7 +17,7 @@ export default function HomePage() {
     isFetching,
   } = useQuery({
     queryKey: ["posts"],
-    queryFn: fetchPosts,
+    queryFn: () => fetchPosts(supabase),
     staleTime: 1000 * 60 * 3, 
   });
 

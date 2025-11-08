@@ -1,4 +1,5 @@
 import group from "@/assets/data/groups.json";
+import { useSupabase } from "@/lib/supabase";
 import { SelectedgroupAtom } from "@/src/components/atoms";
 import { fetchGroups } from "@/src/services/groupService";
 import { AntDesign } from "@expo/vector-icons";
@@ -21,10 +22,11 @@ const GroupSelector = () => {
   const insets = useSafeAreaInsets();
   const [search, setSearch] = React.useState<string>("");
   const setGroup = useSetAtom(SelectedgroupAtom);
+  const supabase = useSupabase();
 
   const {data,isLoading,error}=useQuery({
     queryKey: ["groups",{search}],
-    queryFn: () => fetchGroups(search), 
+    queryFn: () => fetchGroups(search,supabase), 
     staleTime: 10000,
     placeholderData: (previousData)=> previousData
   });

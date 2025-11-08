@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+
+import { useSupabase } from "@/lib/supabase";
 import { SelectedgroupAtom } from "@/src/components/atoms";
 import { AntDesign } from "@expo/vector-icons";
 import { useQueryClient, useMutation } from "@tanstack/react-query";
@@ -20,10 +21,10 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 import { SafeAreaView } from "react-native-safe-area-context";
 
 
-const insertFunction = async(title:string,body:string,group:string)=>{
+const insertFunction = async(title:string,body:string,group:string,supabase:any)=>{
       const { data, error } = await supabase
       .from('posts')
-      .insert({ title,description:body,group_id:group,user_id:"3a7e3d30-44ae-4212-af2b-7139aecd5be1"}).select()
+      .insert({ title,description:body,group_id:group }).select().single();
 
     if (error) throw error;
     return data;
@@ -33,6 +34,7 @@ export default function CreatePostScreen() {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [group, setGroup] = useAtom(SelectedgroupAtom);
+  const supabase = useSupabase();
    
   const queryCLient=useQueryClient();
 
@@ -41,7 +43,7 @@ const {mutate,data, isPending} = useMutation({
     if (!group){
       throw new Error("No group selected");
     }
-    return insertFunction(title,body,group.id);
+    return insertFunction(title,body,group.id,supabase);
   },
   onSuccess: () => {
     console.log(data)

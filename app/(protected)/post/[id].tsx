@@ -10,6 +10,7 @@ import CommentsListItem from "@/src/components/CommentsListItem";
 import PostListItem from "@/src/components/PostListItem";
 import KeyboardStickyView from "@/src/components/KeyboardStickyView";
 import { fetchPostsById } from "@/src/services/postService";
+import { useSupabase } from "@/lib/supabase";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -17,6 +18,8 @@ export default function PostDetailed() {
   const [comment, setComment] = useState("");
   const inputRef = useRef<TextInput>(null);
   const [isInputFocused, setIsInputFocused] = useState(false);
+
+  const supabase = useSupabase();
 
 
   if (!id) {
@@ -26,7 +29,7 @@ export default function PostDetailed() {
   
   const { data: detailedPost, isLoading, isError } = useQuery({
     queryKey: ["post", id],
-    queryFn: () => fetchPostsById(id),
+    queryFn: () => fetchPostsById(id,supabase),
   });
 
   const handleReplyPress = useCallback((commentId: string) => {
