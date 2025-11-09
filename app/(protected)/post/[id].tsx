@@ -87,7 +87,7 @@ export default function PostDetailed() {
                 color="white"
               />
 
-              <AntDesign name="search1" size={24} color="white" />
+              <AntDesign name="search" size={24} color="white" />
               <MaterialIcons name="sort" size={27} color="white" />
               <Entypo name="dots-three-horizontal" size={24} color="white" />
             </View>
