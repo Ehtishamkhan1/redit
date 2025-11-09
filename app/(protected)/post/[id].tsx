@@ -1,16 +1,17 @@
 import React, { useCallback, useRef, useState } from "react";
-import { FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { Alert, FlatList, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import Comments from "@/assets/data/comments.json";
 import posts from "@/assets/data/posts.json";
 import CommentsListItem from "@/src/components/CommentsListItem";
 import PostListItem from "@/src/components/PostListItem";
 import KeyboardStickyView from "@/src/components/KeyboardStickyView";
-import { fetchPostsById } from "@/src/services/postService";
+import { deletePostById, fetchPostsById } from "@/src/services/postService";
 import { useSupabase } from "@/lib/supabase";
+import { AntDesign, Entypo, MaterialIcons } from "@expo/vector-icons";
 
 export default function PostDetailed() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -20,6 +21,8 @@ export default function PostDetailed() {
   const [isInputFocused, setIsInputFocused] = useState(false);
 
   const supabase = useSupabase();
+
+  const queryClient = useQueryClient();
 
 
   if (!id) {
@@ -32,6 +35,19 @@ export default function PostDetailed() {
     queryFn: () => fetchPostsById(id,supabase),
   });
 
+  const {mutate: remove}=useMutation(
+    {
+      mutationFn: ( id: string ) =>  deletePostById(id,supabase),
+      onSuccess: () => {
+        queryClient.invalidateQueries({queryKey:["posts"]});
+        router.back();
+      },
+      onError: (error) => {
+       
+        Alert.alert("Error", error.message);
+      }
+    }
+  )
   const handleReplyPress = useCallback((commentId: string) => {
     console.log("Reply button pressed", commentId);
     setIsInputFocused(true);
@@ -59,6 +75,26 @@ export default function PostDetailed() {
 
   return (
     <View style={{ flex: 1 }}>
+
+       <Stack.Screen
+        options={{
+          headerRight: () => (
+            <View style={{ flexDirection: "row", gap: 10 }}>
+              <Entypo
+                onPress={() => remove(id)}
+                name="trash"
+                size={24}
+                color="white"
+              />
+
+              <AntDesign name="search1" size={24} color="white" />
+              <MaterialIcons name="sort" size={27} color="white" />
+              <Entypo name="dots-three-horizontal" size={24} color="white" />
+            </View>
+          ),
+          animation: "slide_from_bottom",
+        }}
+      />
       <FlatList
         data={postComments}
         keyExtractor={(item) => item.id.toString()}
