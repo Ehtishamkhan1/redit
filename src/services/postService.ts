@@ -13,7 +13,7 @@
     export const fetchPostsById = async (id: string, supabase: any) => {
     const { data, error } = await supabase
       .from("posts")
-      .select("*, group:groups(*)").eq("id", id).single();
+      .select("*, group:groups(*), upvotes(value.sum())").eq("id", id).single();
 
     if (error) throw new Error(error.message);
     return data;

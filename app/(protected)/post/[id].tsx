@@ -35,6 +35,8 @@ export default function PostDetailed() {
     queryFn: () => fetchPostsById(id,supabase),
   });
 
+  console.log("detailedPost", detailedPost);
+
   const {mutate: remove}=useMutation(
     {
       mutationFn: ( id: string ) =>  deletePostById(id,supabase),
